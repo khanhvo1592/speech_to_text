@@ -6,7 +6,8 @@ import json
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'mp3', 'wav'}
+ALLOWED_EXTENSIONS = {'mp3', 'wav', 'm4a'}
+# allow m4a for mobile
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CONFIG_FILE = 'config.json'
 
