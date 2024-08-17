@@ -61,27 +61,82 @@
         button:hover {
             background-color: #0056b3;
         }
+        .history-item {
+            margin-top: 10px;
+            padding: 5px;
+            border: 1px solid #007bff;
+            background-color: #e9f5ff;
+            border-radius: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-height: 1.5em; /* Đảm bảo chỉ chiếm 1 dòng */
+            max-width: 100%; /* Giới hạn chiều rộng */
+            display: block;
+        }
+        .history-item textarea {
+            border: none;
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 1.5em;
+            resize: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        audio {
+            margin-top: 20px;
+            width: 100%;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>Tải lên mp3/wav</h1>
+    <h1>Tải lên mp3/wav/m4a</h1>
     <form action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".mp3, .wav" required>
+        <input type="file" name="file" accept=".mp3, .wav, .m4a" required onchange="playAudio(this)">
         <input type="submit" value="Xử lý">
     </form>
 
-    <div id="result">
-        <h2>Kết quả:</h2>
-        <textarea id="transcript" readonly>{{ result }}
-
-            <button onclick="copyToClipboard()">Sao chép</button>
-        </textarea>
+    <div id="audio-preview" style="display:none;">
+        <h2>Nghe thử âm thanh:</h2>
+        <audio id="audio-player" controls>
+            Trình duyệt của bạn không hỗ trợ phần tử audio.
+        </audio>
     </div>
 
+    {% if result %}
+    <div id="result">
+        <h2>Kết quả:</h2>
+        <textarea id="transcript" readonly>{{ result }}</textarea>
+        <button onclick="copyToClipboard('transcript')">Sao chép</button>
+    </div>
+    {% endif %}
+
+    <h2>Lịch sử:</h2>
+    {% for item in history|reverse %}
+        <div class="history-item">
+            <textarea readonly>{{ item }}</textarea>
+        </div>
+    {% endfor %}
+
     <script>
-        function copyToClipboard() {
-            const transcriptTextarea = document.getElementById('transcript');
-            transcriptTextarea.select();
+        function playAudio(input) {
+            const file = input.files[0];
+            if (file) {
+                const audioPlayer = document.getElementById('audio-player');
+                const audioPreview = document.getElementById('audio-preview');
+                const url = URL.createObjectURL(file);
+                audioPlayer.src = url;
+                audioPreview.style.display = 'block';
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
             document.execCommand('copy');
             alert('Đã sao chép vào clipboard!');
         }
