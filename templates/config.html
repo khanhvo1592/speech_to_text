@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configure Token</title>
+    <title>Cấu hình</title>
 </head>
 <body>
-    <h1>Configure API Token</h1>
-    <form action="/config" method="post">
-        <label for="token">Token:</label>
-        <input type="text" id="token" name="token" value="{{ token }}" required>
-        <input type="submit" value="Save">
+    <h1>Cấu hình</h1>
+    <form method="post">
+        <label for="token">Token API:</label>
+        <input type="text" name="token" id="token" value="{{ token }}" required>
+        <br>
+        <input type="submit" value="Lưu">
     </form>
-    <a href="/">Back to Upload</a>
+    <a href="{{ url_for('home') }}">Quay lại trang chủ</a>
 </body>
 </html>

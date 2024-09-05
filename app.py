@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, send_file
 import os
 import json
 from speech_to_text import speech_to_text_viettel
-from text_to_speech import text_to_speech_viettel
+from text_to_speech import text_to_speech_viettel, get_voices
 from history import add_to_history, get_history
 
 app = Flask(__name__)
@@ -16,20 +16,26 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def read_token():
-    with open(CONFIG_FILE, 'r') as f:
-        config = json.load(f)
-    return config.get('token')
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+        return config.get('token')
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
 
 def write_token(token):
     with open(CONFIG_FILE, 'w') as f:
         json.dump({"token": token}, f)
-
+    
 @app.route('/')
 def home():
     return render_template('home.html')
 
 @app.route('/speech-to-text', methods=['GET', 'POST'])
 def speech_to_text_page():
+    token = read_token()
+    if not token:
+        return redirect(url_for('config'))
     result_text = ""
     if request.method == 'POST':
         if 'file' in request.files:
@@ -60,7 +66,7 @@ def text_to_speech_page():
             return 'Không có văn bản để chuyển đổi', 400
         
         text = request.form['text']
-        voice = request.form.get('voice', 'hcm-diemmy')
+        voice = request.form.get('voice', 'hcm-leyen')
         speed = float(request.form.get('speed', 1))
         
         audio_file = text_to_speech_viettel(text, voice, speed, read_token())
@@ -71,8 +77,9 @@ def text_to_speech_page():
         else:
             return 'Lỗi khi chuyển đổi văn bản thành giọng nói', 500
     
+    voices = get_voices()
     history = get_history('text_to_speech')
-    return render_template('text_to_speech.html', history=history)
+    return render_template('text_to_speech.html', voices=voices, history=history)
 
 @app.route('/config', methods=['GET', 'POST'])
 def config():

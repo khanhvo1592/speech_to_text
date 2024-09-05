@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển đổi Giọng nói thành Văn bản</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+    <div class="container">
+        <h1>Chuyển đổi Giọng nói thành Văn bản</h1>
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".mp3,.wav,.m4a">
+            <input type="submit" value="Chuyển đổi">
+        </form>
+        
+        {% if result %}
+        <div class="result">
+            <h2>Kết quả:</h2>
+            <p>Độ dài: {{ result|length }} ký tự</p>
+            <pre class="wrapped-text">{{ result }}</pre>
+        </div>
+        {% endif %}
+
+        <div class="history">
+            <h2>Lịch sử:</h2>
+            <ul >
+            {% for item in history %}
+                <li>
+                    <pre class="input" title="{{ item.input }}">{{ item.input }}</pre>
+                    <p class="wrapped-text" class="output" title="{{ item.output }}">{{ item.output }} </p>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="home-link">Quay lại trang chủ</a>
+    </div>
+</body>
+</html>

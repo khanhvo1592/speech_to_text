@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển đổi Văn bản thành Giọng nói</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Chuyển đổi Văn bản thành Giọng nói</h1>
+        <form method="post">
+            <textarea name="text" rows="4" cols="50" required></textarea>
+            <br>
+            <label for="voice">Giọng đọc:</label>
+            <select name="voice" id="voice">
+                {% for voice in voices %}
+                <option value="{{ voice.code }}">{{ voice.name }} ({{ voice.description }})</option>
+                {% endfor %}
+            </select>
+            <br>
+            <label for="speed">Tốc độ đọc:</label>
+            <input type="number" name="speed" id="speed" min="0.5" max="2" step="0.1" value="1">
+            <br>
+            <input type="submit" value="Chuyển đổi">
+        </form>
+
+        <div class="history">
+            <h2>Lịch sử:</h2>
+            <ul>
+            {% for item in history %}
+                <li>
+                    <span class="input truncate" title="{{ item.input }}">{{ item.input }}</span>
+                    <span class="output"><a href="{{ item.output }}" download>Tải xuống</a></span>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="home-link">Quay lại trang chủ</a>
+    </div>
+</body>
+</html>
