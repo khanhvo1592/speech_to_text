@@ -1,13 +1,14 @@
-from flask import Flask, request, render_template, redirect, url_for
-import requests
+from flask import Flask, request, render_template, redirect, url_for, send_file
 import os
 import json
+from speech_to_text import speech_to_text_viettel
+from text_to_speech import text_to_speech_viettel
+from history import add_to_history, get_history
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'm4a'}
-# allow m4a for mobile
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 CONFIG_FILE = 'config.json'
 
@@ -22,46 +23,63 @@ def read_token():
 def write_token(token):
     with open(CONFIG_FILE, 'w') as f:
         json.dump({"token": token}, f)
-@app.route('/', methods=['GET', 'POST'])
-def upload_form():
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/speech-to-text', methods=['GET', 'POST'])
+def speech_to_text_page():
     result_text = ""
     if request.method == 'POST':
-        if 'file' not in request.files:
-            result_text = 'No file part'
-        else:
+        if 'file' in request.files:
             file = request.files['file']
-            if file.filename == '' or not allowed_file(file.filename):
-                result_text = 'No selected file or file type not allowed'
-            else:
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            if file and allowed_file(file.filename):
+                filename = file.filename
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(filepath)
-
-                token = read_token()
-                url = "https://viettelai.vn/asr/recognize"
-                payload = {'token': token}
-                headers = {'accept': '*/*'}
-
-                with open(filepath, 'rb') as audio_file:
-                    files = [('file', (file.filename, audio_file, 'audio/wav'))]
-                    response = requests.post(url, headers=headers, data=payload, files=files)
-
+                
+                result_text = speech_to_text_viettel(filepath, read_token())
+                
                 os.remove(filepath)
-
-                if response.status_code == 200:
-                    response_data = response.json()
-                    # Trích xuất transcript
-                    transcript = response_data.get('response', {}).get('result', [{}])[0].get('transcript', 'No transcript found')
-                    result_text = transcript
+                
+                if result_text:
+                    add_to_history('speech_to_text', filename, result_text)
                 else:
-                    result_text = 'Error in processing audio'
+                    result_text = "Lỗi trong quá trình xử lý âm thanh"
+            else:
+                result_text = "File không hợp lệ"
+    
+    history = get_history('speech_to_text')
+    return render_template('speech_to_text.html', result=result_text, history=history)
 
-    return render_template('upload.html', result=result_text)
+@app.route('/text-to-speech', methods=['GET', 'POST'])
+def text_to_speech_page():
+    if request.method == 'POST':
+        if 'text' not in request.form:
+            return 'Không có văn bản để chuyển đổi', 400
+        
+        text = request.form['text']
+        voice = request.form.get('voice', 'hcm-diemmy')
+        speed = float(request.form.get('speed', 1))
+        
+        audio_file = text_to_speech_viettel(text, voice, speed, read_token())
+        
+        if audio_file:
+            add_to_history('text_to_speech', text, audio_file)
+            return send_file(audio_file, as_attachment=True, download_name='speech.mp3')
+        else:
+            return 'Lỗi khi chuyển đổi văn bản thành giọng nói', 500
+    
+    history = get_history('text_to_speech')
+    return render_template('text_to_speech.html', history=history)
+
 @app.route('/config', methods=['GET', 'POST'])
 def config():
     if request.method == 'POST':
         token = request.form['token']
         write_token(token)
-        return redirect(url_for('upload_form'))
+        return redirect(url_for('home'))
     return render_template('config.html', token=read_token())
 
 if __name__ == '__main__':

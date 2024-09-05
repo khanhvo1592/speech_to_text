@@ -74,10 +74,10 @@
         <h2>Kết quả:</h2>
         <textarea id="transcript" readonly>{{ result }}
 
-            <button onclick="copyToClipboard()">Sao chép</button>
+           
         </textarea>
     </div>
-
+    <button onclick="copyToClipboard()">Sao chép</button>
     <script>
         function copyToClipboard() {
             const transcriptTextarea = document.getElementById('transcript');
