@@ -1,19 +1,46 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chủ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Chuyển đổi Giọng nói và Văn bản</h1>
-        <ul>
-            <li><a href="{{ url_for('speech_to_text_page') }}">Chuyển đổi Giọng nói thành Văn bản</a></li>
-            <li><a href="{{ url_for('text_to_speech_page') }}">Chuyển đổi Văn bản thành Giọng nói</a></li>
-            <!-- <li><a href="{{ url_for('config') }}">Cấu hình</a></li> -->
-        </ul>
-    </div>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}VoiceText - Trang chủ{% endblock %}
+
+{% block content %}
+    <h1 class="fade-in">Chào mừng đến với Voice&Text</h1>
+    
+    <section class="intro slide-in">
+        <p>VoiceText là công cụ giúp bạn chuyển đổi giữa giọng nói và văn bản một cách dễ dàng và nhanh chóng.</p>
+    </section>
+    <section class="cta slide-in">
+        <h2>Bắt đầu sử dụng ngay!</h2>
+        <div class="button-group">
+            <a href="{{ url_for('speech_to_text_page') }}" class="button">Giọng nói thành Văn bản</a>
+            <a href="{{ url_for('text_to_speech_page') }}" class="button">Văn bản thành Giọng nói</a>
+        </div>
+    </section>
+        <section class="features slide-in">
+            <h2>Tính năng chính</h2>
+            <ul>
+                <li>Chuyển đổi giọng nói thành văn bản</li>
+                <li>Chuyển đổi văn bản thành giọng nói</li>
+            </ul>
+        </section>
+
+        <section class="instructions slide-in">
+            <h2>Hướng dẫn sử dụng</h2>
+            <h3>Chuyển đổi Giọng nói thành Văn bản:</h3>
+            <ol>
+                <li>Nhấp vào "Giọng nói thành Văn bản" trên thanh điều hướng.</li>
+                <li>Tải lên file âm thanh của bạn (định dạng WAV).</li>
+                <li>Nhấn nút "Chuyển đổi" và đợi kết quả.</li>
+                <li>Xem và sao chép văn bản đã chuyển đổi.</li>
+            </ol>
+
+            <h3>Chuyển đổi Văn bản thành Giọng nói:</h3>
+            <ol>
+                <li>Nhấp vào "Văn bản thành Giọng nói" trên thanh điều hướng.</li>
+                <li>Nhập văn bản bạn muốn chuyển đổi.</li>
+                <li>Chọn giọng đọc mong muốn.</li>
+                <li>Nhấn nút "Chuyển đổi" và đợi kết quả.</li>
+                <li>Nghe file âm thanh đã được tạo ra.</li>
+            </ol>
+        </section>
+
+    {% endblock %}
