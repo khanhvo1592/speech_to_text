@@ -26,7 +26,7 @@
             {% for item in history %}
                 <li>
                     <span class="input truncate" title="{{ item.input }}">{{ item.input }}</span>
-                    <span class="output"><a href="{{ item.output }}" download>Tải xuống</a></span>
+                    <span class="output" class="button"><a href="{{ item.output }}" download>Tải xuống</a></span>
                 </li>
             {% endfor %}
             </ul>
