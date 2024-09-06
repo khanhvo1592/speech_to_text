@@ -1,15 +1,18 @@
-from flask import Flask, request, render_template, redirect, url_for, send_file
+from flask import Flask, request, render_template, redirect, url_for, send_file, send_from_directory
 import os
 import json
 from speech_to_text import speech_to_text_viettel
 from text_to_speech import text_to_speech_viettel, get_voices
-from history import add_to_history, get_history
+from history import add_to_history, get_history, clean_old_files
 
 app = Flask(__name__)
+# Định nghĩa UPLOAD_FOLDER
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'mp3', 'wav', 'm4a'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'mp3', 'wav', 'm4a'}
 CONFIG_FILE = 'config.json'
 
 def allowed_file(filename):
@@ -69,16 +72,25 @@ def text_to_speech_page():
         voice = request.form.get('voice', 'hcm-leyen')
         speed = float(request.form.get('speed', 1))
         
-        audio_file = text_to_speech_viettel(text, voice, speed, read_token())
+        audio_file = text_to_speech_viettel(text, voice, speed, read_token(), UPLOAD_FOLDER)
         
         if audio_file:
             add_to_history('text_to_speech', text, audio_file)
-            return send_file(audio_file, as_attachment=True, download_name='speech.mp3')
+            return send_file(os.path.join(UPLOAD_FOLDER, audio_file), 
+                             as_attachment=True, 
+                             download_name='speech.mp3',
+                             mimetype='audio/mpeg')
         else:
             return 'Lỗi khi chuyển đổi văn bản thành giọng nói', 500
     
     voices = get_voices()
     history = get_history('text_to_speech')
+    print("History:", history)  # Thêm dòng này để kiểm tra
+    # Lấy danh sách các tệp âm thanh hiện tại trong lịch sử
+    current_files = [item['output'] for item in history if item['output'].endswith('.mp3')]
+    
+    # Xóa các tệp âm thanh cũ không còn trong lịch sử
+    clean_old_files('tts', current_files)
     return render_template('text_to_speech.html', voices=voices, history=history)
 
 @app.route('/config', methods=['GET', 'POST'])
@@ -89,6 +101,10 @@ def config():
         return redirect(url_for('home'))
     return render_template('config.html', token=read_token())
 
+@app.route('/downloads/<path:filename>')
+def download_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, 
+                               as_attachment=True, 
+                               mimetype='audio/mpeg')
 if __name__ == '__main__':
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     app.run(debug=True)

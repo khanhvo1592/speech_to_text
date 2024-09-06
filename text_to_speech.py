@@ -25,7 +25,7 @@ VOICES = [
 def get_voices():
     return VOICES
 
-def text_to_speech_viettel(text, voice, speed, token):
+def text_to_speech_viettel(text, voice, speed, token, upload_folder):
     url = "https://viettelai.vn/tts/speech_synthesis"
     payload = json.dumps({
         "text": text,
@@ -44,11 +44,11 @@ def text_to_speech_viettel(text, voice, speed, token):
     
     if response.status_code == 200:
         filename = f"tts_{uuid.uuid4()}.mp3"
-        filepath = os.path.join('uploads', filename)
+        file_path = os.path.join(upload_folder, filename).replace('\\', '/')
         
-        with open(filepath, "wb") as file:
+        with open(file_path, "wb") as file:
             file.write(response.content)
         
-        return filepath
+        return filename
     else:
         return None

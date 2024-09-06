@@ -169,19 +169,8 @@ input[type="submit"]:hover {
     margin-right: 10px;
 }
 
-.history ul li .output {
-    flex-shrink: 0;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
 .history ul li .output a{
-    color: #fff;
+    color: #0085d8;
 }
 
 .history ul li .output a:hover {

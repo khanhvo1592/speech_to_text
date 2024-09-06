@@ -1,0 +1,2 @@
+4. Tạo symbolic link đến /etc/nginx/sites-enabled/:
+sudo ln -s /etc/nginx/sites-available/speech_and_text /etc/nginx/sites-enabled/

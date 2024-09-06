@@ -19,10 +19,22 @@ def save_history(history):
 
 def add_to_history(type, input, output):
     history = load_history()
-    history[type] = [{'input': input, 'output': output}] + history[type]
+    if type not in history:
+        history[type] = []
+    history[type].insert(0, {
+        'input': input,
+        'output': output.replace('\\', '/')
+    })
     history[type] = history[type][:MAX_HISTORY]
     save_history(history)
 
 def get_history(type):
     history = load_history()
     return history.get(type, [])
+def clean_old_files(type, current_files):
+    uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+    for filename in os.listdir(uploads_dir):
+        if filename.startswith(f"{type}_"):
+            file_path = os.path.join(uploads_dir, filename)
+            if filename not in current_files:
+                os.remove(file_path)

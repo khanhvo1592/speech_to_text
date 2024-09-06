@@ -22,13 +22,17 @@
 
         <div class="history">
             <h2>Lịch sử:</h2>
-            <ul>
-            {% for item in history %}
-                <li>
-                    <span class="input truncate" title="{{ item.input }}">{{ item.input }}</span>
-                    <span class="output" class="button"><a href="{{ item.output }}" download>Tải xuống</a></span>
-                </li>
-            {% endfor %}
-            </ul>
+            {% if history %}
+                <ul>
+                {% for item in history %}
+                    <li>
+                        <span class="input truncate" title="{{ item.input }}">{{ item.input }}</span>
+                        <span class="output"><a href="{{ url_for('download_file', filename=item.output) }}" download>Tải xuống</a></span>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>Chưa có lịch sử chuyển đổi.</p>
+            {% endif %}
         </div>
         {% endblock %}
