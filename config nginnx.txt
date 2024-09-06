@@ -13,3 +13,7 @@ server {
 
 
 sudo ln -s /etc/nginx/sites-available/stt /etc/nginx/sites-enabled
+
+
+
+{"token": "52d7d06f430ce7a2ef8b100fdf467f54"}

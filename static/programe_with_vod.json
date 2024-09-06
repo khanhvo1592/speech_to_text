@@ -16,6 +16,42 @@
         "shortname": "ttmk"
     },
     {
+        "name": "Thế giới chuyển động",
+        "shortname": "tgcd"
+    },
+{
+        "name": "Cẩm nang mua sắm",
+        "shortname": "cnms"
+    },
+{
+        "name": "Bóng thời gian",
+        "shortname": "BTG"
+    },
+{
+        "name": "Hậu Giang trên đường phát triển",
+        "shortname": "hgtdpt"
+    },
+{
+        "name": "Bảo vệ nền tảng tư tưởng của Đảng",
+        "shortname": "BVNT"
+    },
+{
+        "name": "Bản tin Khmer",
+        "shortname": "Khmer"
+    },
+{
+        "name": "An ninh Hậu Giang",
+        "shortname": "ANHG"
+    },
+{
+        "name": "Khát vọng thanh niên",
+        "shortname": "kvtn"
+    },
+{
+        "name": "Đảng vì dân, dân theo Đảng",
+        "shortname": "dvd"
+    },
+    {
         "name": "Thời sự Hậu Giang – Thời tiết nông vụ",
         "shortname": "tshg"
     },
@@ -70,6 +106,10 @@
     {
         "name": "Bản tin phòng chống thiên tai dịch bệnh",
         "shortname": "bt15h"
+    },
+{
+        "name": "Chương trình Nhịp sống 896",
+        "shortname": "ns896"
     },
     {
         "name": "Pháp luật với công dân",

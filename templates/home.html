@@ -1,19 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}VoiceText - Trang chủ{% endblock %}
+{% block title %}HGTVDigital - Trang chủ{% endblock %}
 
 {% block content %}
-    <!-- <h1 class="fade-in">Chào mừng đến với Voice&Text</h1> -->
-    
-    <!-- <section class="intro slide-in">
-        <p>VoiceText là công cụ giúp bạn chuyển đổi giữa giọng nói và văn bản một cách dễ dàng và nhanh chóng.</p>
-    </section> -->
+  
     <section class="cta slide-in">
         <h2>Bắt đầu sử dụng ngay!</h2>
         <div class="button-group">
             <a href="{{ url_for('speech_to_text_page') }}" class="button">Giọng nói thành Văn bản</a>
             <a href="{{ url_for('text_to_speech_page') }}" class="button">Văn bản thành Giọng nói</a>
-            <a href="{{ url_for('create_broadcast_schedule') }}" class="button">Tạo Lịch Phát Sóng</a>
+            <a href="{{ url_for('create_broadcast_schedule_page') }}" class="button">Tạo lịch phát sóng</a>
         </div>
     </section>
         <section class="features slide-in">

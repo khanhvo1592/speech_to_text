@@ -6,8 +6,8 @@
 
 
 <div class="container mt-5">
-    <h1>Update lịch</h1>
-    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <h1>Tạo lịch phát sóng</h1>
+    <form action="{{ url_for('create_broadcast_schedule_page') }}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
         <div class="form-group">
             <label for="date_input">Nhập ngày tháng:</label>
             <input type="text" id="date_input" name="date_input" placeholder="ddmm (Ví dụ: 0101)" class="form-control"
@@ -29,7 +29,7 @@
             <small class="form-text text-muted">Mỗi dòng phải bắt đầu bằng thời gian theo định dạng hh:mm (ví dụ: 00:00 Nội
                 dung chương trình).</small>
         </div>
-        <button type="submit" class="btn btn-primary">Download Excel</button>
+        <button type="submit" class="btn btn-primary">Tạo lịch</button>
     </form>
 </div>
 

@@ -1,21 +1,22 @@
-from flask import Flask, request, render_template, redirect, url_for, send_file, send_from_directory
+from flask import Flask, flash, request, render_template, redirect, url_for, send_file, send_from_directory
 import os
 import json
 from text_to_speech import text_to_speech_viettel, get_voices
+from speech_to_text import speech_to_text_viettel
+from broadcast_schedule import create_broadcast_schedule
 from history import add_to_history, get_history, clean_old_files
 from datetime import datetime, timedelta
 import pandas as pd  
 from openpyxl.styles import NamedStyle
 
-
-
-
 app = Flask(__name__)
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1' 
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'm4a'}
 CONFIG_FILE = 'config.json'
 
@@ -35,17 +36,28 @@ def write_token(token):
         json.dump({"token": token}, f)
 
 
-# Đọc file JSON chứa thông tin về chương trình có VOD
-def load_programs_with_vod():
-    json_path = os.path.join(os.path.dirname(__file__), 'static', 'programe_have_vod.json')
-    with open(json_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+def update_config(token):
+    config = {'token': token}
+    with open('speech_to_text/config.json', 'w') as config_file:
+        json.dump(config, config_file)
 
-PROGRAMS_WITH_VOD = load_programs_with_vod()
+@app.route('/config', methods=['GET', 'POST'])
+def config_page():
+    if request.method == 'POST':
+        token = request.form['token']
+        update_config(token)
+        flash('Cấu hình đã được cập nhật thành công!', 'success')
+        return redirect(url_for('config_page'))
+    
+    # Read the current token from config.json
+    try:
+        with open('speech_to_text/config.json', 'r') as config_file:
+            config = json.load(config_file)
+            current_token = config.get('token', '')
+    except FileNotFoundError:
+        current_token = ''
 
-# URL mẫu cho video link
-VOD_URL_TV = "https://60acee235f4d5.streamlock.net:443/VODHGTV/definst/VIDEO/mp4:"
-VOD_URL_RADIO = "https://60acee235f4d5.streamlock.net:443/VODHGTV/definst/AUDIO/mp3:"
+    return render_template('config.html', token=current_token)
 
 
 @app.route('/')
@@ -54,10 +66,7 @@ def home():
 
 @app.route('/speech-to-text', methods=['GET', 'POST'])
 def speech_to_text_page():
-    token = read_token()
-    if not token:
-        return redirect(url_for('config'))
-    result_text = ""
+    result_text = None
     if request.method == 'POST':
         if 'file' in request.files:
             file = request.files['file']
@@ -124,90 +133,21 @@ def download_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, 
                                as_attachment=True, 
                                mimetype='audio/mpeg')
-
-
 @app.route('/create_broadcast_schedule', methods=['GET', 'POST'])
-def create_broadcast_schedule():
+def create_broadcast_schedule_page():
     if request.method == 'POST':
         date_input = request.form['date_input']
         program_type = request.form['program_type']
         input_data = request.form['input_data']
 
-        # Xử lý ngày tháng
-        current_year = datetime.now().year
-        date = datetime.strptime(f"{date_input}{current_year}", "%d%m%Y")
+        output_path = create_broadcast_schedule(date_input, program_type, input_data, app.config['UPLOAD_FOLDER'])
 
-        # Xử lý dữ liệu đầu vào
-        schedule = process_input_data(input_data, date, program_type)
-
-        # Tạo và lưu file Excel
-        output_filename = f'lich_phat_song_{date.strftime("%d%m%Y")}.xlsx'
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
-        save_schedule_to_excel(schedule, output_path)
-
-        if os.path.exists(output_path):
+        if output_path:
             return send_file(output_path, as_attachment=True)
         else:
             return "Không thể tạo file lịch phát sóng", 500
 
     return render_template('create_broadcast_schedule.html')
-
-def process_input_data(input_data, date, program_type):
-    schedule = []
-    lines = input_data.split('\n')
-    for index, line in enumerate(lines, start=1):
-        if line.strip():
-            time, content = line.split(' ', 1)
-            content = content.strip()
-            video_link = generate_video_link(content, program_type, date)
-            schedule.append({
-                'STT': index,
-                'Đài truyền hình': 2 if program_type == '2' else 1,  # 2 cho phát thanh, 1 cho truyền hình
-                'Nội dung': content,
-                'Danh mục': '',  # Để trống, có thể điền sau nếu cần
-                'video_link': video_link,
-                'ngày_giờ': f"{date.strftime('%Y-%m-%d')} {time}:00"
-            })
-    return schedule
-
-def generate_video_link(content, program_type, date):
-    current_date = date.strftime("%d%m%y")
-    for program in PROGRAMS_WITH_VOD:
-        if program['name'].lower() in content.lower():
-            if program_type == '2':  # Phát thanh
-                return f"{VOD_URL_RADIO}{program['shortname']}-{current_date}.mp3/playlist.m3u8"
-            else:  # Truyền hình
-                return f"{VOD_URL_TV}{program['shortname']}-{current_date}.mp4/playlist.m3u8"
-    return ''  # Trả về chuỗi rỗng nếu không tìm thấy chương trình phù hợp
-
-def save_schedule_to_excel(schedule, filename):
-    df = pd.DataFrame(schedule)
-    df = df[['STT', 'Đài truyền hình', 'Nội dung', 'Danh mục', 'video_link', 'ngày_giờ']]  # Sắp xếp lại các cột
-    
-    # Chuyển đổi cột 'ngày_giờ' sang định dạng datetime
-    df['ngày_giờ'] = pd.to_datetime(df['ngày_giờ'])
-    
-    # Tạo một ExcelWriter object
-    with pd.ExcelWriter(filename, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Sheet1')
-        
-        # Lấy workbook và worksheet
-        workbook = writer.book
-        worksheet = writer.sheets['Sheet1']
-        
-        # Định dạng các cột
-        for col in ['A', 'B', 'D']:  # STT, Đài truyền hình, Danh mục
-            worksheet.column_dimensions[col].width = 15
-        worksheet.column_dimensions['C'].width = 50  # Nội dung
-        worksheet.column_dimensions['E'].width = 100  # video_link
-        worksheet.column_dimensions['F'].width = 20  # ngày_giờ
-        
-        # Định dạng cột ngày_giờ
-        date_style = NamedStyle(name='datetime', number_format='YYYY-MM-DD HH:MM:SS')
-        for cell in worksheet['F'][1:]:  # Skip header
-            cell.style = date_style
-        
-    print(f"File saved to: {filename}")
 
 if __name__ == '__main__':
     app.run(debug=True)
