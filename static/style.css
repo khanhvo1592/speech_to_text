@@ -50,6 +50,18 @@ body {
     background-color: #431101;
     font-family: 'Poppins', sans-serif;
     padding: 0 10px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+/* Thêm hiệu ứng khi cuộn */
+.navbar-scrolled {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: rgba(67, 17, 1, 0.95); /* Màu hơi trong suốt */
+}
+body {
+    padding-top: 8vh; /* Tương đương với min-height của navbar */
 }
 
 .logo a {
