@@ -315,13 +315,13 @@ input[type="submit"]:hover {
 .button {
     display: inline-block;
     padding: 12px 24px;
-    background-color: #5D4037;
+    background-color: #0053b2;
     color: #fff;
     text-decoration: none;
     border-radius: 30px;
     font-weight: bold;
     transition: all 0.3s ease;
-    border: 2px solid #5D4037;
+    border: 2px solid #046b91;
 }
 
 .button:hover {
@@ -347,38 +347,55 @@ input[type="submit"]:hover {
         max-width: 250px;
     }
 }
-/* Thêm vào cuối file CSS hiện có */
-
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    background-color: #f8f9fa;
+    font-family: 'Roboto', sans-serif, Arial;
 }
 
 .container {
-    flex: 1;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    padding: 30px;
 }
 
-.footer {
-    background-color: #5D4037;
-    color: #fff;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: 20px;
+h1 {
+    color: #5D4037;
+    margin-bottom: 30px;
 }
 
-.footer p {
-    margin: 0;
-    font-size: 14px;
+.form-group {
+    margin-bottom: 25px;
 }
 
-.footer a {
-    color: #FFA000;
-    text-decoration: none;
-    transition: color 0.3s ease;
+label {
+    font-weight: 500;
+    color: #495057;
 }
 
-.footer a:hover {
-    color: #FFD54F;
-    text-decoration: underline;
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #FFA000;
+    box-shadow: 0 0 0 0.2rem rgba(255, 160, 0, 0.25);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: #ffffff;
 }
