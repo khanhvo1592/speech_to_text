@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}VoiceText - Tạo Lịch Phát Sóng{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Update lịch</h1>
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <div class="form-group">
+            <label for="date_input">Nhập ngày tháng:</label>
+            <input type="text" id="date_input" name="date_input" placeholder="ddmm (Ví dụ: 0101)" class="form-control"
+                pattern="\d{4}" title="Nhập định dạng ddmm (Ví dụ: 0101)" required>
+            <small class="form-text text-muted">Định dạng ngày tháng: ddmm (Ví dụ: 0101).</small>
+        </div>
+        <div class="form-group">
+            <label for="program_type">Thể loại:</label>
+            <select id="program_type" name="program_type" class="form-control" required>
+                <option value="1">Truyền hình</option>
+                <option value="2">Phát thanh</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="input_data">Lịch phát sóng:</label>
+            <textarea id="input_data" name="input_data" class="form-control" rows="10"
+                placeholder="Ví dụ: 00:00 Nội dung chương trình" pattern="^(\d{2}:\d{2} .+\n?)+$" required></textarea>
+            <div class="invalid-feedback">Mỗi dòng phải bắt đầu bằng thời gian theo định dạng hh:mm.</div>
+            <small class="form-text text-muted">Mỗi dòng phải bắt đầu bằng thời gian theo định dạng hh:mm (ví dụ: 00:00 Nội
+                dung chương trình).</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Download Excel</button>
+    </form>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}
