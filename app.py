@@ -99,11 +99,10 @@ def text_to_speech_page():
         voice = request.form.get('voice', 'hcm-leyen')
         speed = float(request.form.get('speed', 1))
         
-        audio_file = text_to_speech_viettel(text, voice, speed, read_token(), UPLOAD_FOLDER)
-        
+        audio_file = text_to_speech_viettel(text, voice, speed, read_token(), app.config['UPLOAD_FOLDER'])
         if audio_file:
             add_to_history('text_to_speech', text, audio_file)
-            return send_file(os.path.join(UPLOAD_FOLDER, audio_file), 
+            return send_file(os.path.join(app.config['UPLOAD_FOLDER'], audio_file), 
                              as_attachment=True, 
                              download_name='speech.mp3',
                              mimetype='audio/mpeg')

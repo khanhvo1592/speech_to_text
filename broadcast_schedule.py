@@ -44,16 +44,17 @@ def generate_video_link(content, program_type, date):
                 return f"{VOD_URL_TV}{program['shortname']}-{current_date}.mp4/playlist.m3u8"
     return ''
 
+# Cập nhật hàm save_schedule_to_excel
 def save_schedule_to_excel(schedule, filename):
     df = pd.DataFrame(schedule)
     df = df[['STT', 'Đài truyền hình', 'Nội dung', 'Danh mục', 'video_link', 'ngày_giờ']]
     
-    df['ngày_giờ'] = pd.to_datetime(df['ngày_giờ'])
+    # Chuyển đổi cột 'ngày_giờ' thành datetime nếu nó chưa phải là datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['ngày_giờ']):
+        df['ngày_giờ'] = pd.to_datetime(df['ngày_giờ'])
     
     with pd.ExcelWriter(filename, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Sheet1')
-        
-        workbook = writer.book
         worksheet = writer.sheets['Sheet1']
         
         for col in ['A', 'B', 'D']:
@@ -67,12 +68,18 @@ def save_schedule_to_excel(schedule, filename):
             cell.style = date_style
     
     print(f"File saved to: {filename}")
-
 def create_broadcast_schedule(date_input, program_type, input_data, upload_folder):
-    current_year = datetime.now().year
-    date = datetime.strptime(f"{date_input}{current_year}", "%d%m%Y")
+    # Chuyển đổi date_input thành đối tượng datetime
+    try:
+        current_year = datetime.now().year
+        date = datetime.strptime(f"{date_input}{current_year}", "%d%m%Y")
+    except ValueError:
+        print(f"Lỗi: Không thể chuyển đổi '{date_input}' thành ngày tháng hợp lệ.")
+        return None
 
     schedule = process_input_data(input_data, date, program_type)
+
+    # Không cần chuyển đổi 'ngày_giờ' thành chuỗi ở đây
 
     output_filename = f'lich_phat_song_{date.strftime("%d%m%Y")}.xlsx'
     output_path = os.path.join(upload_folder, output_filename)
