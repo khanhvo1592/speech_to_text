@@ -3,11 +3,9 @@
 {% block title %}VoiceText - Tạo Lịch Phát Sóng{% endblock %}
 
 {% block content %}
-
-
 <div class="container mt-5">
-    <h1>Tạo lịch phát sóng</h1>
-    <form action="{{ url_for('create_broadcast_schedule_page') }}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <h1 class="mb-4">Tạo lịch phát sóng</h1>
+    <form id="scheduleForm" class="needs-validation mb-5" novalidate>
         <div class="form-group">
             <label for="date_input">Nhập ngày tháng:</label>
             <input type="text" id="date_input" name="date_input" placeholder="ddmm (Ví dụ: 0101)" class="form-control"
@@ -29,25 +27,75 @@
             <small class="form-text text-muted">Mỗi dòng phải bắt đầu bằng thời gian theo định dạng hh:mm (ví dụ: 00:00 Nội
                 dung chương trình).</small>
         </div>
-        <button type="submit" class="btn btn-primary">Tạo lịch</button>
+        <button type="submit" class="btn btn-primary mt-3">Tạo lịch</button>
     </form>
+
+    <div id="result" class="mt-4"></div>
+
+    <h2 class="mt-5 mb-4">Lịch phát sóng đã tạo</h2>
+    <div id="fileList" class="list-group">
+        {% for file in files %}
+        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2">
+            <span class="file-name">{{ file }}</span>
+            <a href="{{ url_for('download_file', filename=file) }}" class="btn btn-outline-primary btn-sm">Tải xuống</a>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
+<style>
+    .file-name {
+        word-break: break-all;
+        max-width: 70%;
+    }
+    .list-group-item {
+        transition: background-color 0.3s;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-outline-primary {
+        transition: all 0.3s;
+    }
+    .btn-outline-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+</style>
+
 <script>
-    (function() {
-        'use strict';
-        window.addEventListener('load', function() {
-            var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (form.checkValidity() === false) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        }, false);
-    })();
+    document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        fetch('/create_broadcast_schedule', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('result').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                // Thêm file mới vào đầu danh sách
+                var fileList = document.getElementById('fileList');
+                var newItem = document.createElement('div');
+                newItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2';
+                newItem.innerHTML = `
+                    <span class="file-name">${data.file}</span>
+                    <a href="/download/${data.file}" class="btn btn-outline-primary btn-sm">Tải xuống</a>
+                `;
+                fileList.insertBefore(newItem, fileList.firstChild);
+                // Giữ chỉ 10 item trong danh sách
+                while (fileList.children.length > 10) {
+                    fileList.removeChild(fileList.lastChild);
+                }
+            } else {
+                document.getElementById('result').innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('result').innerHTML = '<div class="alert alert-danger">Có lỗi xảy ra khi gửi yêu cầu.</div>';
+        });
+    });
 </script>
 {% endblock %}

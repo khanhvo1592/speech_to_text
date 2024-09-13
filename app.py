@@ -1,4 +1,4 @@
-from flask import Flask, flash, request, render_template, redirect, url_for, send_file, send_from_directory
+from flask import Flask, flash, request, render_template, redirect, url_for, send_file, send_from_directory, jsonify
 import os
 import json
 from text_to_speech import text_to_speech_viettel, get_voices
@@ -8,6 +8,7 @@ from history import add_to_history, get_history, clean_old_files
 from datetime import datetime, timedelta
 import pandas as pd  
 from openpyxl.styles import NamedStyle
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1' 
@@ -124,15 +125,26 @@ def create_broadcast_schedule_page():
         output_path = create_broadcast_schedule(date_input, program_type, input_data, app.config['UPLOAD_FOLDER'])
 
         if output_path:
-            return send_file(output_path, as_attachment=True)
+            return jsonify({"success": True, "message": "Lịch phát sóng đã được tạo thành công.", "file": os.path.basename(output_path)})
         else:
-            return "Không thể tạo file lịch phát sóng", 500
+            return jsonify({"success": False, "message": "Có lỗi xảy ra khi tạo lịch phát sóng."})
 
-    return render_template('create_broadcast_schedule.html')
+    # GET request
+    day = int(request.args.get('date_input', '01')[:2])
+    if day % 2 == 1:
+        return render_template('404.html'), 404
+
+    files = get_available_files()
+    return render_template('create_broadcast_schedule.html', files=files)
 
 @app.route('/serve_audio/<filename>')
 def serve_audio(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+def get_available_files():
+    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.startswith('lps_') and f.endswith('.xlsx')]
+    files.sort(reverse=True)
+    return files[:10]  # Trả về tối đa 10 file mới nhất
 
 if __name__ == '__main__':
     app.run(debug=True)

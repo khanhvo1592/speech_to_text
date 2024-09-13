@@ -113,8 +113,18 @@ def create_broadcast_schedule(date_input, program_type, input_data, upload_folde
         print("Không có dữ liệu hợp lệ để tạo lịch phát sóng.")
         return None
 
-    output_filename = f'lich_phat_song_{date.strftime("%d%m%Y")}.xlsx'
+    program_type_name = "truyenhinh" if program_type == '1' else "phatthanh"
+    output_filename = f'lps_{date.strftime("%d%m%Y")}_{program_type_name}.xlsx'
     output_path = os.path.join(upload_folder, output_filename)
     save_schedule_to_excel(schedule, output_path)
 
+    # Giữ chỉ 10 file mới nhất
+    keep_latest_files(upload_folder, 4)
+
     return output_path if os.path.exists(output_path) else None
+
+def keep_latest_files(folder, max_files):
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if f.startswith('lps_') and f.endswith('.xlsx')]
+    files.sort(key=os.path.getmtime, reverse=True)
+    for old_file in files[max_files:]:
+        os.remove(old_file)
