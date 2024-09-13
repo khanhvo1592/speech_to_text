@@ -130,5 +130,9 @@ def create_broadcast_schedule_page():
 
     return render_template('create_broadcast_schedule.html')
 
+@app.route('/serve_audio/<filename>')
+def serve_audio(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 if __name__ == '__main__':
     app.run(debug=True)
