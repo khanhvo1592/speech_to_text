@@ -36,26 +36,16 @@ def write_token(token):
         json.dump({"token": token}, f)
 
 
-def update_config(token):
-    config = {'token': token}
-    with open('speech_to_text/config.json', 'w') as config_file:
-        json.dump(config, config_file)
-
 @app.route('/config', methods=['GET', 'POST'])
 def config_page():
     if request.method == 'POST':
         token = request.form['token']
-        update_config(token)
+        write_token(token)
         flash('Cấu hình đã được cập nhật thành công!', 'success')
         return redirect(url_for('config_page'))
     
-    # Read the current token from config.json
-    try:
-        with open('speech_to_text/config.json', 'r') as config_file:
-            config = json.load(config_file)
-            current_token = config.get('token', '')
-    except FileNotFoundError:
-        current_token = ''
+    # Đọc token hiện tại từ config.json
+    current_token = read_token()
 
     return render_template('config.html', token=current_token)
 
@@ -118,14 +108,6 @@ def text_to_speech_page():
     # Xóa các tệp âm thanh cũ không còn trong lịch sử
     clean_old_files('tts', current_files)
     return render_template('text_to_speech.html', voices=voices, history=history)
-
-@app.route('/config', methods=['GET', 'POST'])
-def config():
-    if request.method == 'POST':
-        token = request.form['token']
-        write_token(token)
-        return redirect(url_for('home'))
-    return render_template('config.html', token=read_token())
 
 @app.route('/downloads/<path:filename>')
 def download_file(filename):
