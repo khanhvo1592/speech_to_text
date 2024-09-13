@@ -27,7 +27,11 @@
                 {% for item in history %}
                     <li>
                         <span class="input truncate" title="{{ item.input }}">{{ item.input }}</span>
-                        <span class="output"><a href="{{ url_for('download_file', filename=item.output) }}" download>Tải xuống</a></span>
+                        <audio controls>
+                            <source src="{{ url_for('serve_audio', filename=item.output) }}" type="audio/mpeg">
+                            Trình duyệt của bạn không hỗ trợ phát audio.
+                        </audio>
+                        <a href="{{ url_for('download_file', filename=item.output) }}" download>Tải xuống</a>
                     </li>
                 {% endfor %}
                 </ul>
@@ -35,4 +39,4 @@
                 <p>Chưa có lịch sử chuyển đổi.</p>
             {% endif %}
         </div>
-        {% endblock %}
+{% endblock %}

@@ -112,9 +112,14 @@ def text_to_speech_page():
 
 @app.route('/downloads/<path:filename>')
 def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, 
-                               as_attachment=True, 
-                               mimetype='audio/mpeg')
+    try:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, 
+                                   as_attachment=True, 
+                                   mimetype='audio/mpeg')
+    except FileNotFoundError:
+        return jsonify({"success": False, "message": "File not found."}), 404
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 @app.route('/create_broadcast_schedule', methods=['GET', 'POST'])
 def create_broadcast_schedule_page():
     if request.method == 'POST':
@@ -131,7 +136,7 @@ def create_broadcast_schedule_page():
 
     # GET request
     day = int(request.args.get('date_input', '01')[:2])
-    if day % 2 == 1:
+    if day % 2 == 0:
         return render_template('404.html'), 404
 
     files = get_available_files()

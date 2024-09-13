@@ -116,6 +116,14 @@ def create_broadcast_schedule(date_input, program_type, input_data, upload_folde
     program_type_name = "truyenhinh" if program_type == '1' else "phatthanh"
     output_filename = f'lps_{date.strftime("%d%m%Y")}_{program_type_name}.xlsx'
     output_path = os.path.join(upload_folder, output_filename)
+    
+    # Xử lý trường hợp trùng tên
+    counter = 1
+    while os.path.exists(output_path):
+        output_filename = f'lps_{date.strftime("%d%m%Y")}_{program_type_name}_{counter}.xlsx'
+        output_path = os.path.join(upload_folder, output_filename)
+        counter += 1
+    
     save_schedule_to_excel(schedule, output_path)
 
     # Giữ chỉ 10 file mới nhất

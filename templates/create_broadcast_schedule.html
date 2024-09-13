@@ -14,10 +14,18 @@
         </div>
         <div class="form-group">
             <label for="program_type">Thể loại:</label>
-            <select id="program_type" name="program_type" class="form-control" required>
-                <option value="1">Truyền hình</option>
-                <option value="2">Phát thanh</option>
-            </select>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="program_type" id="program_type_tv" value="1" required>
+                <label class="form-check-label" for="program_type_tv">
+                    Truyền hình
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="program_type" id="program_type_radio" value="2" required>
+                <label class="form-check-label" for="program_type_radio">
+                    Phát thanh
+                </label>
+            </div>
         </div>
         <div class="form-group">
             <label for="input_data">Lịch phát sóng:</label>
