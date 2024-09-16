@@ -130,7 +130,8 @@ def create_broadcast_schedule_page():
         output_path = create_broadcast_schedule(date_input, program_type, input_data, app.config['UPLOAD_FOLDER'])
 
         if output_path:
-            return jsonify({"success": True, "message": "Lịch phát sóng đã được tạo thành công.", "file": os.path.basename(output_path)})
+            filename = os.path.basename(output_path)
+            return jsonify({"success": True, "message": "Lịch phát sóng đã được tạo thành công.", "file": filename})
         else:
             return jsonify({"success": False, "message": "Có lỗi xảy ra khi tạo lịch phát sóng."})
 
